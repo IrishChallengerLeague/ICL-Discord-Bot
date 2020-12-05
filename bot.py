@@ -7,16 +7,15 @@ from discord.ext import commands
 from logging.config import fileConfig
 from typing import List
 from utils.server import WebServer
-from utils.csgo_server import CSGOServer
 
-__version__ = '1.7.1'
-__dev__ = 745000319942918303
+__version__ = '0.0.1'
+__dev__ = 784871645483237386
 
 
-class Discord_10man(commands.Bot):
+class ICL_bot(commands.Bot):
     def __init__(self, config: dict, startup_extensions: List[str]):
         # commands.when_mentioned_or('e!')
-        super().__init__(command_prefix='.', case_insensitive=True, description='A bot to run CSGO PUGS.',
+        super().__init__(command_prefix='!', case_insensitive=True, description='ICL Bot',
                          help_command=commands.DefaultHelpCommand(verify_checks=False),
                          intents=discord.Intents(
                              guilds=True, members=True, bans=True, emojis=True, integrations=True, invites=True,
@@ -25,7 +24,7 @@ class Discord_10man(commands.Bot):
                              dm_typing=True
                          ))
         fileConfig('logging.conf')
-        self.logger = logging.getLogger(f'10man.{__name__}')
+        self.logger = logging.getLogger(f'ICL_bot.{__name__}')
         self.logger.debug(f'Version = {__version__}')
         self.logger.debug(f'config.json = \n {pprint.pformat(config)}')
 
@@ -35,23 +34,9 @@ class Discord_10man(commands.Bot):
             self.bot_port: int = config['bot_port']
         else:
             self.bot_port: int = 3000
-        self.steam_web_api_key = config['steam_web_API_key']
-        self.servers: List[CSGOServer] = []
-        # Will need to change for when there is multiple server queue
-        self.users_not_ready: List[discord.Member] = []
-        for i, server in enumerate(config['servers']):
-            self.servers.append(
-                CSGOServer(i, server['server_address'], server['server_port'], server['server_password'],
-                           server['RCON_password']))
         self.web_server = WebServer(bot=self)
         self.dev: bool = False
         self.version: str = __version__
-        self.queue_ctx: commands.Context = None
-        self.queue_voice_channel: discord.VoiceChannel = None
-        self.match_size = 10
-        self.spectators: List[discord.Member] = []
-        self.connect_dm = False
-        self.queue_captains: List[discord.Member] = []
 
         for extension in startup_extensions:
             self.load_extension(f'cogs.{extension}')
@@ -62,13 +47,13 @@ class Discord_10man(commands.Bot):
         await db.execute('''
                     CREATE TABLE IF NOT EXISTS users(
                         discord_id TEXT UNIQUE,
-                        steam_id TEXT
+                        faceit_id TEXT
                     )''')
 
         # TODO: Custom state for waiting for pug or if a pug is already playing
         await self.change_presence(status=discord.Status.online,
                                    activity=discord.Activity(type=discord.ActivityType.competing,
-                                                             name='CSGO Pugs'))
+                                                             name='ICL'))
 
         self.dev = self.user.id == __dev__
         self.logger.debug(f'Dev = {self.dev}')

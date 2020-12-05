@@ -5,17 +5,16 @@ import aiohttp
 import discord
 from discord.ext import commands, tasks
 
-from bot import Discord_10man
+from bot import ICL_bot
 
 
 class Utils(commands.Cog):
-    def __init__(self, bot: Discord_10man):
+    def __init__(self, bot: ICL_bot):
         fileConfig('logging.conf')
-        self.logger = logging.getLogger(f'10man.{__name__}')
+        self.logger = logging.getLogger(f'ICL_bot.{__name__}')
         self.logger.debug(f'Loaded {__name__}')
 
-        self.bot: Discord_10man = bot
-        self.check_update.start()
+        self.bot: ICL_bot = bot
 
     @commands.command(hidden=True)
     @commands.has_permissions(administrator=True)
@@ -72,29 +71,12 @@ class Utils(commands.Cog):
             self.logger.warning(f'{ctx.author} did not specify number of messages to delete.')
         self.logger.exception('clear command exception')
 
-    @tasks.loop(hours=24)
-    async def check_update(self):
-        self.logger.info('Checking for update.')
-        session = aiohttp.ClientSession()
-        async with session.get('https://api.github.com/repos/yannickgloster/discord-10man/releases/latest') as resp:
-            json = await resp.json()
-            if self.bot.version < json['tag_name'][1:]:
-                self.bot.logger.info(f'{self.bot.version} bot is out of date, please update to {json["tag_name"]}')
-                embed = discord.Embed(title=f'Discord 10man Update {json["tag_name"]}', url=json["html_url"])
-                embed.set_thumbnail(
-                    url="https://repository-images.githubusercontent.com/286741783/1df5e700-e141-11ea-9fbc-338769809f24")
-                embed.add_field(name='Release Notes', value=f'{json["body"]}', inline=False)
-                embed.add_field(name='Download', value=f'{json["html_url"]}', inline=False)
-                owner: discord.Member = (await self.bot.application_info()).owner
-                await owner.send(embed=embed)
-        await session.close()
-
     @commands.command(aliases=['version', 'v', 'a'], help='This command gets the bot information and version')
     async def about(self, ctx: commands.Context):
         self.logger.debug(f'{ctx.author}: {ctx.prefix}{ctx.invoked_with} {ctx.args[2:]}')
         embed = discord.Embed(color=0xff0000)
-        embed.add_field(name=f'Discord 10 Man Bot v{self.bot.version}',
-                        value=f'Built by <@125033487051915264> & <@282670937738969088>', inline=False)
+        embed.add_field(name=f'ICL Bot v{self.bot.version}',
+                        value=f'Built by <@125033487051915264>', inline=False)
         await ctx.send(embed=embed)
         self.logger.debug(f'{ctx.author} got bot about info.')
 
