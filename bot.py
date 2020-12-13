@@ -38,6 +38,8 @@ class ICL_bot(commands.Bot):
         self.dev: bool = False
         self.version: str = __version__
 
+        self.matches: List[str] = []
+
         for extension in startup_extensions:
             self.load_extension(f'cogs.{extension}')
 
