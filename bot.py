@@ -5,7 +5,7 @@ import pprint
 from databases import Database
 from discord.ext import commands
 from logging.config import fileConfig
-from typing import List
+from typing import List, Dict, Tuple
 from utils.server import WebServer
 
 __version__ = '0.0.1'
@@ -39,6 +39,9 @@ class ICL_bot(commands.Bot):
         self.version: str = __version__
 
         self.matches: List[str] = []
+        self.matches_check: List[str] = []
+
+        self.match_channels: Dict[str, Tuple[discord.VoiceChannel, discord.VoiceChannel]] = {}
 
         for extension in startup_extensions:
             self.load_extension(f'cogs.{extension}')

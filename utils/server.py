@@ -1,11 +1,7 @@
 import discord
 import logging
-import os
 import pprint
 import socket
-import traceback
-import uuid
-import valve.rcon
 
 from aiohttp import web
 from json import JSONDecodeError
@@ -46,12 +42,21 @@ class WebServer:
                 self.logger.warning(f'{request.remote} sent a invalid json POST ')
                 return WebServer._http_error_handler('json-body')
 
-            if faceit['event'] is 'match_status_ready':
-                self.bot.matches.append(faceit['payload']['id'])
+            if faceit['event'] == 'match_status_ready':
+                if faceit['payload']['id'] not in self.bot.matches:
+                    self.bot.matches.append(faceit['payload']['id'])
+                    self.bot.matches_check.append(faceit['payload']['id'])
+
+                if not self.bot.cogs['CSGO'].check_for_knife.is_running():
+                    self.bot.cogs['CSGO'].check_for_knife.start()
+
                 # Start check for knife round
-            elif faceit['event'] is 'match_status_finished' or faceit['event'] is 'match_status_aborted' or faceit['event'] is 'match_status_cancelled':
+            elif faceit['event'] == 'match_status_finished' or faceit['event'] == 'match_status_aborted' or faceit['event'] == 'match_status_cancelled':
                 if faceit['payload']['id'] in self.bot.matches:
                     self.bot.matches.remove(faceit['payload']['id'])
+                    for member in self.bot.match_channels[faceit['payload']['id']][0].members + self.bot.match_channels[faceit['payload']['id']][1].members:
+                        await member.move_to(channel=self.bot.get_channel(784164015122546751), reason=f'Match Complete')
+                    self.bot.match_channels.pop(faceit['payload']['id'])
 
         else:
             # Used to decline any requests what doesn't match what our
