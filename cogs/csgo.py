@@ -42,22 +42,24 @@ class CSGO(commands.Cog):
                         for player in json_body["teams"]["faction1"]["roster"]:
                             data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
                                                       {"player": str(player['player_id'])})
-                            discord_player = self.bot.get_user(data[0])
-                            try:
-                                await discord_player.move_to(channel=team1_channel, reason=f'You are on team 1')
-                            except discord.HTTPException:
-                                self.logger.error(f'Could not move player {discord_player}')
+                            if len(data) > 0:
+                                discord_player = self.bot.get_user(data[0])
+                                try:
+                                    await discord_player.move_to(channel=team1_channel, reason=f'You are on team 1')
+                                except discord.HTTPException:
+                                    self.logger.error(f'Could not move player {discord_player}')
 
                         self.logger.debug(f'Moved all team1 players to {team1_channel}')
 
                         for player in json_body["teams"]["faction2"]["roster"]:
                             data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
                                                       {"player": str(player['player_id'])})
-                            discord_player = self.bot.get_user(data[0])
-                            try:
-                                await discord_player.move_to(channel=team2_channel, reason=f'You are on team 2')
-                            except discord.HTTPException:
-                                self.logger.error(f'Could not move player {discord_player}')
+                            if len(data) > 0:
+                                discord_player = self.bot.get_user(data[0])
+                                try:
+                                    await discord_player.move_to(channel=team2_channel, reason=f'You are on team 2')
+                                except discord.HTTPException:
+                                    self.logger.error(f'Could not move player {discord_player}')
 
                         self.logger.debug(f'Moved all team2 players to {team2_channel}')
                         self.bot.matches_check.remove(match)
