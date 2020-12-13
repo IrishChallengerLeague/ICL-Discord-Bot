@@ -35,14 +35,10 @@ class WebServer:
         """
 
         if request.method == 'GET':
-            if request.path == '/faceit':
-                self.logger.debug(f'{request.remote} accessed {self.IP}:{self.port}/match')
-                print(request)
-                return WebServer._http_error_handler()
-            else:
-                return WebServer._http_error_handler()
+            self.logger.debug(f'{request.remote} accessed {self.IP}:{self.port}{request.path}')
+            return WebServer._http_error_handler()
 
-        # or "Authorization"
+        # Auth check for json
         elif request.method == 'POST':
             try:
                 faceit = await request.json()
@@ -50,8 +46,12 @@ class WebServer:
                 self.logger.warning(f'{request.remote} sent a invalid json POST ')
                 return WebServer._http_error_handler('json-body')
 
-            # TODO: Create Checks for the JSON
-
+            if faceit['event'] is 'match_status_ready':
+                self.bot.matches.append(faceit['payload']['id'])
+                # Start check for knife round
+            elif faceit['event'] is 'match_status_finished' or faceit['event'] is 'match_status_aborted' or faceit['event'] is 'match_status_cancelled':
+                if faceit['payload']['id'] in self.bot.matches:
+                    self.bot.matches.remove(faceit['payload']['id'])
 
         else:
             # Used to decline any requests what doesn't match what our
