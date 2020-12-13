@@ -14,8 +14,7 @@ __dev__ = 784871645483237386
 
 class ICL_bot(commands.Bot):
     def __init__(self, config: dict, startup_extensions: List[str]):
-        # commands.when_mentioned_or('e!')
-        super().__init__(command_prefix='!', case_insensitive=True, description='ICL Bot',
+        super().__init__(command_prefix=commands.when_mentioned_or('icl.'), case_insensitive=True, description='ICL Bot',
                          help_command=commands.DefaultHelpCommand(verify_checks=False),
                          intents=discord.Intents(
                              guilds=True, members=True, bans=True, emojis=True, integrations=True, invites=True,
@@ -29,6 +28,7 @@ class ICL_bot(commands.Bot):
         self.logger.debug(f'config.json = \n {pprint.pformat(config)}')
 
         self.token: str = config['discord_token']
+        self.faceit_token: str = config['faceit_token']
         self.bot_IP: str = config['bot_IP']
         if 'bot_port' in config:
             self.bot_port: int = config['bot_port']
