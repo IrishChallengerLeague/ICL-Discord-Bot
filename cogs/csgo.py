@@ -1,3 +1,4 @@
+import aiohttp
 import discord
 
 from bot import ICL_bot
@@ -7,6 +8,7 @@ from discord.ext import commands, tasks
 import logging
 from logging.config import fileConfig
 import pprint
+
 
 class CSGO(commands.Cog):
     def __init__(self, bot: ICL_bot):
@@ -18,6 +20,11 @@ class CSGO(commands.Cog):
 
     @commands.command(hidden=True)
     async def test(self, ctx: commands.Context, *args):
+        headers = {f'Authorization': f'Bearer {self.bot.faceit_token}'}
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(f'https://open.faceit.com/data/v4/hubs/d9dba8bd-6bf9-435f-bdbc-808ae42d21bd') as r:
+                json_body = await r.json()
+                print(json_body)
         self.logger.debug(f'{ctx.author}: {ctx.prefix}{ctx.invoked_with} {ctx.args[2:]}')
         print(f'test')
 
@@ -48,24 +55,18 @@ class CSGO(commands.Cog):
                       brief='Shows the current live matches')
     async def matches(self, ctx: commands.Context):
         self.logger.debug(f'{ctx.author}: {ctx.prefix}{ctx.invoked_with} {ctx.args[2:]}')
-        for server in self.bot.servers:
-            if not server.available:
-                score_embed = discord.Embed(color=0x00ff00)
-                score_embed.add_field(name=f'{server.team_scores[0]}',
-                                      value=f'{server.team_names[0]}', inline=True)
-                score_embed.add_field(name=f'{server.team_scores[1]}',
-                                      value=f'{server.team_names[1]}', inline=True)
-                gotv = server.get_gotv()
-                if gotv is None:
-                    score_embed.add_field(name='GOTV',
-                                          value='Not Configured',
-                                          inline=False)
-                else:
-                    score_embed.add_field(name='GOTV',
-                                          value=f'connect {server.server_address}:{gotv}',
-                                          inline=False)
-                score_embed.set_footer(text="🟢 Live")
-                await ctx.send(embed=score_embed)
+        for match in self.bot.matches:
+            headers = {f'Authorization': f'Bearer {self.bot.faceit_token}'}
+            async with aiohttp.ClientSession(headers=headers) as session:
+                async with session.get(f'https://open.faceit.com/data/v4/matches/{match}') as r:
+                    json_body = await r.json()
+                    score_embed = discord.Embed(color=0x00ff00)
+                    score_embed.add_field(name=f'{json_body["results"]["score"]["faction1"]}',
+                                          value=f'team_{json_body["teams"]["faction1"]["roster"][0]["nickname"]}', inline=True)
+                    score_embed.add_field(name=f'{json_body["results"]["score"]["faction2"]}',
+                                          value=f'team_{json_body["teams"]["faction2"]["roster"][0]["nickname"]}', inline=True)
+                    score_embed.set_footer(text="🟢 Live")
+                    await ctx.send(embed=score_embed)
 
     @matches.error
     async def matches_error(self, ctx: commands.Context, error: Exception):
