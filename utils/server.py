@@ -42,6 +42,8 @@ class WebServer:
                 self.logger.warning(f'{request.remote} sent a invalid json POST ')
                 return WebServer._http_error_handler('json-body')
 
+            self.logger.debug(f'request = \n {pprint.pformat(faceit)}')
+
             if faceit['event'] == 'match_status_ready':
                 if faceit['payload']['id'] not in self.bot.matches:
                     self.bot.matches.append(faceit['payload']['id'])
