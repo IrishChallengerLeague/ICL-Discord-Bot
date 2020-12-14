@@ -8,7 +8,7 @@ from logging.config import fileConfig
 from typing import List, Dict, Tuple
 from utils.server import WebServer
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __dev__ = 784871645483237386
 
 
