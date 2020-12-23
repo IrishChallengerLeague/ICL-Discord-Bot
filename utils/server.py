@@ -61,8 +61,8 @@ class WebServer:
                     new_match = Match(faceit['payload']['id'], team1_channel, team2_channel)
                     self.bot.matches.append(new_match)
 
-                if not self.bot.cogs['CSGO'].check_live.is_running():
-                    self.bot.cogs['CSGO'].check_live.start()
+                    if not self.bot.cogs['CSGO'].check_live.is_running():
+                        self.bot.cogs['CSGO'].check_live.start()
 
             elif faceit['event'] == 'match_status_finished' or faceit['event'] == 'match_status_aborted' or faceit['event'] == 'match_status_cancelled':
                 self.logger.debug(f'{faceit["payload"]["id"]} is over')
@@ -80,7 +80,6 @@ class WebServer:
                     self.bot.matches.remove(match)
 
             return web.Response(status=200)
-
 
         else:
             # Used to decline any requests what doesn't match what our
