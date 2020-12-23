@@ -7,7 +7,7 @@ from aiohttp import web
 from json import JSONDecodeError
 from logging.config import fileConfig
 from typing import List, Union
-
+from utils.match import Match
 
 class WebServer:
     def __init__(self, bot):
@@ -46,19 +46,24 @@ class WebServer:
 
             if faceit['event'] == 'match_status_ready':
                 if faceit['payload']['id'] not in self.bot.matches:
-                    self.bot.matches.append(faceit['payload']['id'])
-                    self.bot.matches_check.append(faceit['payload']['id'])
+                    self.bot.matches.append(Match(faceit['payload']['id']))
 
-                if not self.bot.cogs['CSGO'].check_for_knife.is_running():
-                    self.bot.cogs['CSGO'].check_for_knife.start()
+                if not self.bot.cogs['CSGO'].check_live.is_running():
+                    self.bot.cogs['CSGO'].check_live.start()
 
                 # Start check for knife round
             elif faceit['event'] == 'match_status_finished' or faceit['event'] == 'match_status_aborted' or faceit['event'] == 'match_status_cancelled':
-                if faceit['payload']['id'] in self.bot.matches:
-                    self.bot.matches.remove(faceit['payload']['id'])
-                    for member in self.bot.match_channels[faceit['payload']['id']][0].members + self.bot.match_channels[faceit['payload']['id']][1].members:
+                match: Match = None
+                for match_check in self.bot.matches:
+                    if match_check.match_id == faceit['payload']['id']:
+                        match = match_check
+                        break
+
+                if match is not None:
+                    for member in match.team1_channel.members + match.team2_channel.members:
                         await member.move_to(channel=self.bot.get_channel(784164015122546751), reason=f'Match Complete')
-                    self.bot.match_channels.pop(faceit['payload']['id'])
+                    self.bot.matches.remove(match)
+
 
         else:
             # Used to decline any requests what doesn't match what our

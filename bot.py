@@ -7,8 +7,9 @@ from discord.ext import commands
 from logging.config import fileConfig
 from typing import List, Dict, Tuple
 from utils.server import WebServer
+from utils.match import Match
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 __dev__ = 784871645483237386
 
 
@@ -38,10 +39,7 @@ class ICL_bot(commands.Bot):
         self.dev: bool = False
         self.version: str = __version__
 
-        self.matches: List[str] = []
-        self.matches_check: List[str] = []
-
-        self.match_channels: Dict[str, Tuple[discord.VoiceChannel, discord.VoiceChannel]] = {}
+        self.matches: List[Match] = []
 
         for extension in startup_extensions:
             self.load_extension(f'cogs.{extension}')

@@ -24,48 +24,57 @@ class CSGO(commands.Cog):
         print(f'test')
 
     @tasks.loop(seconds=1.0)
-    async def check_for_knife(self):
-        for match in self.bot.matches_check:
-            headers = {f'Authorization': f'Bearer {self.bot.faceit_token}'}
-            async with aiohttp.ClientSession(headers=headers) as session:
-                async with session.get(f'https://open.faceit.com/data/v4/matches/{match}') as r:
-                    json_body = await r.json()
+    async def check_live(self):
+        matches_left = 0
+        for match in self.bot.matches:
+            self.logger.debug(f'Checking match {match.match_id}')
+            if not match.live:
+                self.logger.debug(f'Match {match.match_id} is not live')
+                matches_left += 1
+                headers = {f'Authorization': f'Bearer {self.bot.faceit_token}'}
+                async with aiohttp.ClientSession(headers=headers) as session:
+                    async with session.get(f'https://open.faceit.com/data/v4/matches/{match.match_id}') as r:
+                        json_body = await r.json()
 
-                    if 'results' in json_body:
-                        db = Database('sqlite:///main.sqlite')
-                        await db.connect()
-                        team1_channel = await self.bot.get_channel(787774505854042132).create_voice_channel(name=f'team_{json_body["teams"]["faction1"]["roster"][0]["nickname"]}', user_limit=6)
-                        team2_channel = await self.bot.get_channel(787774505854042132).create_voice_channel(name=f'team_{json_body["teams"]["faction2"]["roster"][0]["nickname"]}', user_limit=6)
+                        if 'results' in json_body:
+                            self.logger.debug(f'Match {match.match_id} knife round over')
+                            db = Database('sqlite:///main.sqlite')
+                            await db.connect()
+                            team1_channel = await self.bot.get_channel(787774505854042132).create_voice_channel(name=f'team_{json_body["teams"]["faction1"]["roster"][0]["nickname"]}', user_limit=6)
+                            team2_channel = await self.bot.get_channel(787774505854042132).create_voice_channel(name=f'team_{json_body["teams"]["faction2"]["roster"][0]["nickname"]}', user_limit=6)
 
-                        self.bot.match_channels[match] = (team1_channel, team2_channel)
+                            match.set_voice_channels(team1_channel, team2_channel)
 
-                        for player in json_body["teams"]["faction1"]["roster"]:
-                            data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
-                                                      {"player": str(player['player_id'])})
-                            if len(data) > 0:
-                                discord_player = self.bot.get_user(data[0])
-                                try:
-                                    await discord_player.move_to(channel=team1_channel, reason=f'You are on team 1')
-                                except (discord.HTTPException, AttributeError):
-                                    self.logger.error(f'Could not move player {discord_player}')
+                            for player in json_body["teams"]["faction1"]["roster"]:
+                                data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
+                                                          {"player": str(player['player_id'])})
+                                if len(data) > 0:
+                                    discord_player = self.bot.get_user(data[0])
+                                    if discord_player is not None:
+                                        try:
+                                            await discord_player.move_to(channel=team1_channel, reason=f'You are on team 1')
+                                        except (discord.HTTPException, AttributeError):
+                                            self.logger.error(f'Could not move player {discord_player}')
 
-                        self.logger.debug(f'Moved all team1 players to {team1_channel}')
+                            self.logger.debug(f'Moved all team1 players to {team1_channel}')
 
-                        for player in json_body["teams"]["faction2"]["roster"]:
-                            data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
-                                                      {"player": str(player['player_id'])})
-                            if len(data) > 0:
-                                discord_player = self.bot.get_user(data[0])
-                                try:
-                                    await discord_player.move_to(channel=team2_channel, reason=f'You are on team 2')
-                                except (discord.HTTPException, AttributeError):
-                                    self.logger.error(f'Could not move player {discord_player}')
+                            for player in json_body["teams"]["faction2"]["roster"]:
+                                data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
+                                                          {"player": str(player['player_id'])})
+                                if len(data) > 0:
+                                    discord_player = self.bot.get_user(data[0])
+                                    if discord_player is not None:
+                                        try:
+                                            await discord_player.move_to(channel=team2_channel, reason=f'You are on team 2')
+                                        except (discord.HTTPException, AttributeError):
+                                            self.logger.error(f'Could not move player {discord_player}')
 
-                        self.logger.debug(f'Moved all team2 players to {team2_channel}')
-                        self.bot.matches_check.remove(match)
+                            self.logger.debug(f'Moved all team2 players to {team2_channel}')
+                            match.set_live()
+                            matches_left -= 1
 
-        if len(self.bot.matches_check) == 0:
-            self.check_for_knife.cancel()
+        if matches_left == 0:
+            self.check_live.cancel()
 
     @commands.command(aliases=['live', 'live_matches'], help='This command shows the current live matches.',
                       brief='Shows the current live matches')
@@ -74,7 +83,7 @@ class CSGO(commands.Cog):
         for match in self.bot.matches:
             headers = {f'Authorization': f'Bearer {self.bot.faceit_token}'}
             async with aiohttp.ClientSession(headers=headers) as session:
-                async with session.get(f'https://open.faceit.com/data/v4/matches/{match}') as r:
+                async with session.get(f'https://open.faceit.com/data/v4/matches/{match.match_id}') as r:
                     json_body = await r.json()
                     score_embed = discord.Embed(color=0x00ff00)
                     score_embed.add_field(name=f'{json_body["results"]["score"]["faction1"]}',
