@@ -45,7 +45,13 @@ class WebServer:
             self.logger.debug(f'request = \n {pprint.pformat(faceit)}')
 
             if faceit['event'] == 'match_status_ready':
-                if faceit['payload']['id'] not in self.bot.matches:
+                match_exists = False
+                for match_check in self.bot.matches:
+                    if match_check.match_id == faceit['payload']['id']:
+                        match_exists = True
+                        break
+
+                if not match_exists:
                     self.bot.matches.append(Match(faceit['payload']['id']))
 
                 if not self.bot.cogs['CSGO'].check_live.is_running():
