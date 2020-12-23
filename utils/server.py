@@ -70,6 +70,8 @@ class WebServer:
                         await member.move_to(channel=self.bot.get_channel(784164015122546751), reason=f'Match Complete')
                     self.bot.matches.remove(match)
 
+            return web.Response(status=200)
+
 
         else:
             # Used to decline any requests what doesn't match what our
