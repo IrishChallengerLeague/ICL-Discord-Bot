@@ -57,7 +57,6 @@ class WebServer:
                 if not self.bot.cogs['CSGO'].check_live.is_running():
                     self.bot.cogs['CSGO'].check_live.start()
 
-                # Start check for knife round
             elif faceit['event'] == 'match_status_finished' or faceit['event'] == 'match_status_aborted' or faceit['event'] == 'match_status_cancelled':
                 match: Match = None
                 for match_check in self.bot.matches:

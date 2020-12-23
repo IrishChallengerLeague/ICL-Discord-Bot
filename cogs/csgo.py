@@ -45,6 +45,8 @@ class CSGO(commands.Cog):
 
                             match.set_voice_channels(team1_channel, team2_channel)
 
+                            self.logger.debug(f'match request = \n {pprint.pformat(json_body)}')
+
                             for player in json_body["teams"]["faction1"]["roster"]:
                                 data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
                                                           {"player": str(player['player_id'])})
