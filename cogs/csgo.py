@@ -40,38 +40,36 @@ class CSGO(commands.Cog):
                             self.logger.debug(f'Match {match.match_id} knife round over')
                             db = Database('sqlite:///main.sqlite')
                             await db.connect()
-                            team1_channel = await self.bot.get_channel(787774505854042132).create_voice_channel(name=f'team_{json_body["teams"]["faction1"]["roster"][0]["nickname"]}', user_limit=6)
-                            team2_channel = await self.bot.get_channel(787774505854042132).create_voice_channel(name=f'team_{json_body["teams"]["faction2"]["roster"][0]["nickname"]}', user_limit=6)
-
-                            match.set_voice_channels(team1_channel, team2_channel)
 
                             self.logger.debug(f'match request = \n {pprint.pformat(json_body)}')
 
                             for player in json_body["teams"]["faction1"]["roster"]:
                                 data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
                                                           {"player": str(player['player_id'])})
+                                self.logger.debug(f'data: {data.items()}')
                                 if len(data) > 0:
                                     discord_player = self.bot.get_user(data[0])
                                     if discord_player is not None:
                                         try:
-                                            await discord_player.move_to(channel=team1_channel, reason=f'You are on team 1')
+                                            await discord_player.move_to(channel=match.team1_channel, reason=f'You are on team 1')
                                         except (discord.HTTPException, AttributeError):
                                             self.logger.error(f'Could not move player {discord_player}')
 
-                            self.logger.debug(f'Moved all team1 players to {team1_channel}')
+                            self.logger.debug(f'Moved all team1 players to {match.team1_channel}')
 
                             for player in json_body["teams"]["faction2"]["roster"]:
                                 data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
                                                           {"player": str(player['player_id'])})
+                                self.logger.debug(f'data: {data.items()}')
                                 if len(data) > 0:
                                     discord_player = self.bot.get_user(data[0])
                                     if discord_player is not None:
                                         try:
-                                            await discord_player.move_to(channel=team2_channel, reason=f'You are on team 2')
+                                            await discord_player.move_to(channel=match.team2_channel, reason=f'You are on team 2')
                                         except (discord.HTTPException, AttributeError):
                                             self.logger.error(f'Could not move player {discord_player}')
 
-                            self.logger.debug(f'Moved all team2 players to {team2_channel}')
+                            self.logger.debug(f'Moved all team2 players to {match.team2_channel}')
                             match.set_live()
                             matches_left -= 1
 

@@ -5,7 +5,7 @@ from logging.config import fileConfig
 
 
 class Match:
-    def __init__(self, match_id: str):
+    def __init__(self, match_id: str, team1_channel: discord.VoiceChannel, team2_channel: discord.VoiceChannel):
         fileConfig('logging.conf')
         self.logger = logging.getLogger(f'ICL_bot.{__name__}')
 
@@ -14,8 +14,6 @@ class Match:
         self.team1_channel: discord.VoiceChannel = None
         self.team2_channel: discord.VoiceChannel = None
         self.logger.debug(f'Created match {self.match_id}')
-
-    def set_voice_channels(self, team1_channel: discord.VoiceChannel, team2_channel: discord.VoiceChannel):
         self.team1_channel = team1_channel
         self.team2_channel = team2_channel
         self.logger.debug(

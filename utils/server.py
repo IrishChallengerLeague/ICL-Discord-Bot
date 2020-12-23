@@ -45,6 +45,7 @@ class WebServer:
             self.logger.debug(f'request = \n {pprint.pformat(faceit)}')
 
             if faceit['event'] == 'match_status_ready':
+                self.logger.debug(f'{faceit["payload"]["id"]} is ready')
                 match_exists = False
                 for match_check in self.bot.matches:
                     if match_check.match_id == faceit['payload']['id']:
@@ -52,17 +53,26 @@ class WebServer:
                         break
 
                 if not match_exists:
-                    self.bot.matches.append(Match(faceit['payload']['id']))
+                    team1_channel = await self.bot.get_channel(787774505854042132).create_voice_channel(
+                        name=faceit["payload"]["teams"][0]["name"], user_limit=6)
+                    team2_channel = await self.bot.get_channel(787774505854042132).create_voice_channel(
+                        name=faceit["payload"]["teams"][1]["name"], user_limit=6)
+
+                    new_match = Match(faceit['payload']['id'], team1_channel, team2_channel)
+                    self.bot.matches.append(new_match)
 
                 if not self.bot.cogs['CSGO'].check_live.is_running():
                     self.bot.cogs['CSGO'].check_live.start()
 
             elif faceit['event'] == 'match_status_finished' or faceit['event'] == 'match_status_aborted' or faceit['event'] == 'match_status_cancelled':
+                self.logger.debug(f'{faceit["payload"]["id"]} is over')
                 match: Match = None
                 for match_check in self.bot.matches:
                     if match_check.match_id == faceit['payload']['id']:
                         match = match_check
                         break
+
+                self.logger.debug(f'Found match {match.match_id}')
 
                 if match is not None:
                     for member in match.team1_channel.members + match.team2_channel.members:
