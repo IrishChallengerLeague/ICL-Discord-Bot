@@ -81,8 +81,6 @@ class WebServer:
                     if not self.bot.cogs['CSGO'].update_scorecard.is_running():
                         self.bot.cogs['CSGO'].update_scorecard.start()
 
-                return web.Response(status=200)
-
             if faceit['event'] == 'match_status_finished' or faceit['event'] == 'match_status_aborted' or \
                     faceit['event'] == 'match_status_cancelled':
                 self.logger.debug(f'{faceit["payload"]["id"]} is over')
@@ -102,9 +100,8 @@ class WebServer:
                     await match.team2_channel.delete(reason=f'{faceit["payload"]["id"]} Complete')
                     self.bot.matches.remove(match)
 
-                return web.Response(status=200)
-
-            return web.Response(status=200)
+            self.logger.debug('Sending 200')
+            return web.json_response({"received": True}, status=200)
 
         else:
             # Used to decline any requests what doesn't match what our
