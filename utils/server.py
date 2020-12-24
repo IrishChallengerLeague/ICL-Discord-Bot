@@ -49,8 +49,9 @@ class WebServer:
                 self.logger.debug(f'{faceit["payload"]["id"]} is ready')
                 match_exists = False
                 for match_check in self.bot.matches:
-                    if match_check.match_id == faceit['payload']['id']:
+                    if match_check.match_id == str(faceit['payload']['id']):
                         match_exists = True
+                        self.logger.error('Match already exists')
                         break
 
                 if not match_exists:
@@ -80,13 +81,16 @@ class WebServer:
                     if not self.bot.cogs['CSGO'].update_scorecard.is_running():
                         self.bot.cogs['CSGO'].update_scorecard.start()
 
-            elif faceit['event'] == 'match_status_finished' or faceit['event'] == 'match_status_aborted' or \
+                return web.Response(status=200)
+
+            if faceit['event'] == 'match_status_finished' or faceit['event'] == 'match_status_aborted' or \
                     faceit['event'] == 'match_status_cancelled':
                 self.logger.debug(f'{faceit["payload"]["id"]} is over')
                 match: Match = None
                 for match_check in self.bot.matches:
-                    if match_check.match_id == faceit['payload']['id']:
+                    if match_check.match_id == str(faceit['payload']['id']):
                         match = match_check
+                        self.logger.error('Match already exists')
                         break
 
                 self.logger.debug(f'Found match {match.match_id}')
@@ -98,6 +102,8 @@ class WebServer:
                     await match.team2_channel.delete(reason=f'{faceit["payload"]["id"]} Complete')
                     self.bot.matches.remove(match)
 
+                return web.Response(status=200)
+
             return web.Response(status=200)
 
         else:
@@ -105,8 +111,6 @@ class WebServer:
             # API expects.
             self.logger.warning(f'{request.remote} sent an invalid request.')
             return WebServer._http_error_handler("request-type")
-
-        return WebServer._http_error_handler()
 
     async def http_start(self) -> None:
         """
