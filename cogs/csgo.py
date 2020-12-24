@@ -25,11 +25,14 @@ class CSGO(commands.Cog):
 
     @tasks.loop(seconds=1.0)
     async def update_scorecard(self):
+        self.logger.debug('Scorecard loop')
         for match in self.bot.matches:
+            self.logger.debug(f'found match {match.match_id}')
             headers = {f'Authorization': f'Bearer {self.bot.faceit_token}'}
             async with aiohttp.ClientSession(headers=headers) as session:
                 async with session.get(f'https://open.faceit.com/data/v4/matches/{match.match_id}') as r:
                     json_body = await r.json()
+                    self.logger.debug(f'Request on match = \n {pprint.pformat(json_body)}')
                     first_message = True
                     team1_score = 0
                     team2_score = 0
@@ -80,6 +83,7 @@ class CSGO(commands.Cog):
                             await match.match_scorecard.edit(embed=embed)
 
         if len(self.bot.matches) is 0:
+            self.logger.debug('canceling')
             self.update_scorecard.cancel()
 
     @commands.command(aliases=['live', 'live_matches'], help='This command shows the current live matches.',

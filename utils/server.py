@@ -49,12 +49,14 @@ class WebServer:
                 self.logger.debug(f'{faceit["payload"]["id"]} is ready')
                 match_exists = False
                 for match_check in self.bot.matches:
+                    self.logger.debug(f'{match_check.match_id}')
                     if match_check.match_id == str(faceit['payload']['id']):
                         match_exists = True
                         self.logger.error('Match already exists')
                         break
 
                 if not match_exists:
+                    self.logger.error('Creating channels')
                     team1_channel: discord.VoiceChannel = await self.bot.get_channel(
                         787774505854042132).create_voice_channel(
                         name=faceit["payload"]["teams"][0]["name"], user_limit=6)
@@ -78,7 +80,10 @@ class WebServer:
                                       team1_roster, team2_roster)
                     self.bot.matches.append(new_match)
 
+                    self.logger.debug('finishing creating the match')
+
                     if not self.bot.cogs['CSGO'].update_scorecard.is_running():
+                        self.logger.debug('starting loop thingy')
                         self.bot.cogs['CSGO'].update_scorecard.start()
 
             if faceit['event'] == 'match_status_finished' or faceit['event'] == 'match_status_aborted' or \
@@ -86,6 +91,7 @@ class WebServer:
                 self.logger.debug(f'{faceit["payload"]["id"]} is over')
                 match: Match = None
                 for match_check in self.bot.matches:
+                    self.logger.debug(f'{match_check.match_id}')
                     if match_check.match_id == str(faceit['payload']['id']):
                         match = match_check
                         self.logger.error('Match already exists')
@@ -101,7 +107,7 @@ class WebServer:
                     self.bot.matches.remove(match)
 
             self.logger.debug('Sending 200')
-            return web.json_response({"received": True}, status=200)
+            return web.Response(status=200)
 
         else:
             # Used to decline any requests what doesn't match what our
