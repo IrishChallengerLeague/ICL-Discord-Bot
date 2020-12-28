@@ -45,6 +45,8 @@ class Setup(commands.Cog):
         self.logger.info(f'{ctx.author} connected to {faceit}')
         await ctx.author.edit(nick=faceit_nick)
         self.logger.info(f'Changed {ctx.author}\'s nickname.')
+        await ctx.author.add_roles(ctx.guild.get_role(793186930220597269))
+        self.logger.info(f'Added Member role to {ctx.author}')
 
     @link.error
     async def link_error(self, ctx: commands.Context, error: Exception):

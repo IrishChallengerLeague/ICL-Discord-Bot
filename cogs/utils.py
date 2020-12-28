@@ -16,6 +16,19 @@ class Utils(commands.Cog):
 
         self.bot: ICL_bot = bot
 
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        try:
+            embed = discord.Embed(color=0x2d8f00)
+            embed.add_field(name='Welcome to ICL!', value='Looking forward to seeing you in queue!', inline=False)
+            embed.add_field(name='Link your Faceit account to the bot:',
+                            value='In <#793194031437054022> `icl.link <faceit account url>`', inline=False)
+            embed.add_field(name='Please read over the rules:',
+                            value='<#788094657204715541>', inline=False)
+            await member.send(embed=embed)
+        except (discord.HTTPException, discord.Forbidden):
+            self.logger.error(f'Could not send {member} a PM')
+
     @commands.command(hidden=True)
     @commands.has_permissions(administrator=True)
     async def load(self, ctx: commands.Context, extension: str):

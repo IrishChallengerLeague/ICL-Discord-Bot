@@ -56,7 +56,8 @@ class WebServer:
                         break
 
                 if not match_exists:
-                    self.logger.error('Creating channels')
+                    self.logger.info('Creating channels')
+
                     team1_channel: discord.VoiceChannel = await self.bot.get_channel(
                         787774505854042132).create_voice_channel(
                         name=faceit["payload"]["teams"][0]["name"], user_limit=6)
@@ -80,24 +81,23 @@ class WebServer:
                                       team1_roster, team2_roster)
                     self.bot.matches.append(new_match)
 
+                    self.logger.debug(len(self.bot.matches))
+
                     self.logger.debug('finishing creating the match')
 
                     if not self.bot.cogs['CSGO'].update_scorecard.is_running():
                         self.logger.debug('starting loop thingy')
                         self.bot.cogs['CSGO'].update_scorecard.start()
 
-            if faceit['event'] == 'match_status_finished' or faceit['event'] == 'match_status_aborted' or \
-                    faceit['event'] == 'match_status_cancelled':
+            if faceit['event'] == 'match_status_finished' or faceit['event'] == 'match_status_aborted' or faceit['event'] == 'match_status_cancelled':
                 self.logger.debug(f'{faceit["payload"]["id"]} is over')
                 match: Match = None
                 for match_check in self.bot.matches:
                     self.logger.debug(f'{match_check.match_id}')
                     if match_check.match_id == str(faceit['payload']['id']):
                         match = match_check
-                        self.logger.error('Match already exists')
+                        self.logger.debug(f'Found match {match.match_id}')
                         break
-
-                self.logger.debug(f'Found match {match.match_id}')
 
                 if match is not None:
                     for member in match.team1_channel.members + match.team2_channel.members:
@@ -146,7 +146,6 @@ class WebServer:
         web.Response
             AIOHTTP web server response.
         """
-
         return web.json_response(
             {"error": error},
             status=400 if error else 200

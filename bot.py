@@ -9,7 +9,7 @@ from typing import List, Dict, Tuple
 from utils.server import WebServer
 from utils.match import Match
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __dev__ = 784871645483237386
 
 

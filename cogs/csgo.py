@@ -25,7 +25,6 @@ class CSGO(commands.Cog):
 
     @tasks.loop(seconds=1.0)
     async def update_scorecard(self):
-        self.logger.debug('Scorecard loop')
         for match in self.bot.matches:
             self.logger.debug(f'found match {match.match_id}')
             headers = {f'Authorization': f'Bearer {self.bot.faceit_token}'}
@@ -38,7 +37,7 @@ class CSGO(commands.Cog):
                     team2_score = 0
                     if 'results' in json_body:
                         team1_score: int = json_body['results']['score']['faction1']
-                        team2_score: int = json_body['results']['score']['faction1']
+                        team2_score: int = json_body['results']['score']['faction2']
                         first_message = False
 
                     if team1_score != match.team1_score or team2_score != match.team2_score or first_message:
@@ -59,7 +58,7 @@ class CSGO(commands.Cog):
                         embed = discord.Embed()
                         embed.add_field(name=f'{match.team1_score} | {match.team1_name}', value=team1_string,
                                         inline=True)
-                        embed.add_field(name=f'{match.team1_score} | {match.team1_name}', value=team2_string,
+                        embed.add_field(name=f'{match.team2_score} | {match.team2_name}', value=team2_string,
                                         inline=True)
                         if json_body['status'] != 'FINISHED':
                             embed.set_footer(text="🟢 Live")
@@ -72,17 +71,17 @@ class CSGO(commands.Cog):
                             for player in match.team1_roster + match.team2_roster:
                                 data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
                                                           {"player": str(player[0])})
-                                if len(data) > 0:
+                                if data is not None:
                                     notification_string += f'<@{data[0]}> '
 
-                            channel: discord.TextChannel = self.bot.get_channel(784437653894332467)
+                            channel: discord.TextChannel = self.bot.get_channel(793194031437054022)
                             message = await channel.send(content=notification_string, embed=embed)
                             match.match_scorecard = message
                             match.notified_players = True
                         else:
                             await match.match_scorecard.edit(embed=embed)
 
-        if len(self.bot.matches) is 0:
+        if len(self.bot.matches) == 0:
             self.logger.debug('canceling')
             self.update_scorecard.cancel()
 
