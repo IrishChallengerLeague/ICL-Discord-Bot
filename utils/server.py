@@ -102,7 +102,7 @@ class WebServer:
                 if match is not None:
                     for member in match.team1_channel.members + match.team2_channel.members:
                         await member.move_to(channel=self.bot.get_channel(784164015122546751), reason=f'Match Complete')
-                    await match.team2_channel.delete(reason=f'{faceit["payload"]["id"]} Complete')
+                    await match.team1_channel.delete(reason=f'{faceit["payload"]["id"]} Complete')
                     await match.team2_channel.delete(reason=f'{faceit["payload"]["id"]} Complete')
                     self.bot.matches.remove(match)
 
