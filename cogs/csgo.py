@@ -40,6 +40,19 @@ class CSGO(commands.Cog):
                         team2_score: int = json_body['results']['score']['faction2']
                         first_message = False
 
+                    if first_message:
+                        for player in match.team1_roster:
+                            data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
+                                                      {"player": str(player[0])})
+                            if data is not None:
+                                await self.bot.guilds[0].get_member(data[0]).add_roles(match.team1_role)
+
+                        for player in match.team2_roster:
+                            data = await db.fetch_one('SELECT discord_id FROM users WHERE faceit_id = :player',
+                                                      {"player": str(player[0])})
+                            if data is not None:
+                                await self.bot.guilds[0].get_member(data[0]).add_roles(match.team2_role)
+
                     if team1_score != match.team1_score or team2_score != match.team2_score or first_message:
                         self.logger.debug('Updating Scores')
                         match.update_scores(team1_score, team2_score)
