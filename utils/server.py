@@ -57,14 +57,29 @@ class WebServer:
                             break
 
                     if not match_exists:
+                        team1_role = await self.bot.guilds[0].create_role(
+                            name=faceit["payload"]["teams"][0]["name"], reason='Created for Faceit match')
+                        team2_role = await self.bot.guilds[0].create_role(
+                            name=faceit["payload"]["teams"][1]["name"], reason='Created for Faceit match')
+
                         self.logger.info('Creating channels')
+
+                        overwrites_team1 = {
+                            self.bot.guilds[0].Member: discord.PermissionOverwrite(connect=False),
+                            team1_role: discord.PermissionOverwrite(connect=True)
+                        }
+
+                        overwrites_team2 = {
+                            self.bot.guilds[0].Member: discord.PermissionOverwrite(connect=False),
+                            team1_role: discord.PermissionOverwrite(connect=True)
+                        }
 
                         team1_channel: discord.VoiceChannel = await self.bot.get_channel(
                             787774505854042132).create_voice_channel(
-                            name=faceit["payload"]["teams"][0]["name"], user_limit=6)
+                            name=faceit["payload"]["teams"][0]["name"], user_limit=6, overwrites=overwrites_team1)
                         team2_channel: discord.VoiceChannel = await self.bot.get_channel(
                             787774505854042132).create_voice_channel(
-                            name=faceit["payload"]["teams"][1]["name"], user_limit=6)
+                            name=faceit["payload"]["teams"][1]["name"], user_limit=6, overwrites=overwrites_team2)
 
                         team1_roster = []
                         for team1_player in faceit["payload"]["teams"][0]["roster"]:
@@ -77,9 +92,11 @@ class WebServer:
                         team1_invite = await team1_channel.create_invite(max_age=7200)
                         team2_invite = await team2_channel.create_invite(max_age=7200)
 
+
+
                         new_match = Match(faceit['payload']['id'], team1_channel, team2_channel, team1_invite, team2_invite,
                                           faceit["payload"]["teams"][0]["name"], faceit["payload"]["teams"][1]["name"],
-                                          team1_roster, team2_roster)
+                                          team1_roster, team2_roster, team1_role, team2_role)
                         self.bot.matches.append(new_match)
 
                         self.logger.debug(len(self.bot.matches))
@@ -108,6 +125,8 @@ class WebServer:
                                 self.logger.error(f'Could not move {member}')
                         await match.team1_channel.delete(reason=f'{faceit["payload"]["id"]} Complete')
                         await match.team2_channel.delete(reason=f'{faceit["payload"]["id"]} Complete')
+                        await match.team1_role.delete(reason=f'{faceit["payload"]["id"]} Complete')
+                        await match.team2_role.delete(reason=f'{faceit["payload"]["id"]} Complete')
                         self.bot.matches.remove(match)
 
             self.logger.debug('Sending 200')

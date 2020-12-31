@@ -2,5 +2,7 @@
     "discord_token": "123fkdjsh123alksjfhlaskdjafhlkj1hl3kj4hlkjss",
     "faceit_token": "alkshfalsjkhflasdjhf123kjhl",
     "bot_IP": "",
-    "bot_port": 3000
+    "bot_port": 3000,
+    "match_category_id": 12341231231231231,
+    "lobby_channel_id": 12341231231231231
 }
