@@ -9,7 +9,7 @@ from typing import List, Dict, Tuple
 from utils.server import WebServer
 from utils.match import Match
 
-__version__ = '0.2.1'
+__version__ = '0.2.0'
 __dev__ = 784871645483237386
 
 
@@ -40,10 +40,6 @@ class ICL_bot(commands.Bot):
         self.version: str = __version__
 
         self.matches: List[Match] = []
-        self.config = config
-
-        self.match_category: discord.CategoryChannel = None
-        self.lobby: discord.VoiceChannel = None
 
         for extension in startup_extensions:
             self.load_extension(f'cogs.{extension}')
@@ -64,9 +60,6 @@ class ICL_bot(commands.Bot):
 
         self.dev = self.user.id == __dev__
         self.logger.debug(f'Dev = {self.dev}')
-
-        self.match_category = self.get_channel(self.config['match_category_id'])
-        self.lobby = self.get_channel(self.config['lobby_channel_id'])
 
         await self.web_server.http_start()
         self.logger.info(f'{self.user} connected.')

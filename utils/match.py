@@ -8,7 +8,7 @@ from typing import List, Tuple
 class Match:
     def __init__(self, match_id: str, team1_channel: discord.VoiceChannel, team2_channel: discord.VoiceChannel,
                  team1_invite: discord.Invite, team2_invite: discord.Invite, team1_name: str, team2_name: str,
-                 team1_roster: List[Tuple[str, str]], team2_roster: List[Tuple[str, str]], team1_role: discord.Role, team2_role: discord.Role):
+                 team1_roster: List[Tuple[str, str]], team2_roster: List[Tuple[str, str]]):
         fileConfig('logging.conf')
         self.logger = logging.getLogger(f'ICL_bot.{__name__}')
 
@@ -30,8 +30,6 @@ class Match:
         self.team2_roster: List[Tuple[str, str]] = team2_roster
         self.notified_players: bool = False
         self.logger.debug(f'Created match {self.match_id}')
-        self.team1_role: discord.Role = team1_role
-        self.team2_role: discord.Role = team2_role
 
     def update_scores(self, team1_score: int, team2_score: int):
         self.team1_score = team1_score
