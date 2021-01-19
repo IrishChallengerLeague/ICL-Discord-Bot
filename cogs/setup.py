@@ -33,6 +33,7 @@ class Setup(commands.Cog):
                 if 'errors' in json_body:
                     raise commands.UserInputError('No user found with that url/nickname')
                 faceit_id = json_body['player_id']
+                faceit_avatar = json_body['avatar']
 
         db = Database('sqlite:///main.sqlite')
         await db.connect()
@@ -41,6 +42,7 @@ class Setup(commands.Cog):
                         VALUES( :discord_id, :faceit_id )
                         ''', {"discord_id": str(ctx.author.id), "faceit_id": str(faceit_id)})
         embed = discord.Embed(description=f'Connected {ctx.author.mention} to {faceit_nick} \n `{faceit_id}`', color=0x00FF00)
+        embed.set_author(name=faceit_nick, icon_url=faceit_avatar)
         await ctx.send(embed=embed)
         self.logger.info(f'{ctx.author} connected to {faceit}')
         await ctx.author.add_roles(ctx.guild.get_role(793186930220597269))
