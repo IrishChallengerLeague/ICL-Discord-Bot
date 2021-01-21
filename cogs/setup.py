@@ -36,6 +36,7 @@ class Setup(commands.Cog):
                     raise commands.UserInputError('No user found with that url/nickname')
                 faceit_id = json_body['player_id']
                 faceit_avatar = json_body['avatar']
+                faceit_url: str = json_body['faceit_url'].replace('{lang}', json_body['settings']['language'])
 
         db = Database('sqlite:///main.sqlite')
         await db.connect()
@@ -43,8 +44,8 @@ class Setup(commands.Cog):
                         REPLACE INTO users (discord_id, faceit_id)
                         VALUES( :discord_id, :faceit_id )
                         ''', {"discord_id": str(ctx.author.id), "faceit_id": str(faceit_id)})
-        embed = discord.Embed(description=f'Connected {ctx.author.mention} to {faceit_nick} \n `{faceit_id}`', color=0x00FF00)
-        embed.set_author(name=faceit_nick, icon_url=faceit_avatar)
+        embed = discord.Embed(description=f'Connected to [`{faceit_id}`]({faceit_url})', color=0x00FF00)
+        embed.set_author(name=faceit_nick, icon_url=faceit_avatar, url=faceit_url)
         await ctx.send(embed=embed)
         self.logger.info(f'{ctx.author} connected to {faceit}')
         await ctx.author.add_roles(ctx.guild.get_role(793186930220597269))
