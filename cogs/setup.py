@@ -26,6 +26,8 @@ class Setup(commands.Cog):
         faceit_nick = faceit
         if re.match(r'.*faceit.com\/.*\/players.*', faceit):
             faceit_nick = faceit[faceit.rfind('players/')+8:]
+            if faceit_nick[-1] == '/':
+                faceit_nick = faceit_nick[:-1]
         headers = {f'Authorization': f'Bearer {self.bot.faceit_token}'}
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(f'https://open.faceit.com/data/v4/players?nickname={faceit_nick}') as r:
