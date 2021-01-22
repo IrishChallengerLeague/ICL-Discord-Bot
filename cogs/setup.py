@@ -37,6 +37,18 @@ class Setup(commands.Cog):
                 faceit_id = json_body['player_id']
                 faceit_avatar = json_body['avatar']
                 faceit_url: str = json_body['faceit_url'].replace('{lang}', json_body['settings']['language'])
+            async with session.get(f'https://open.faceit.com/data/v4/players/{faceit_id}/hubs') as r:
+                json_body = await r.json()
+                if 'errors' in json_body:
+                    raise commands.UserInputError('Error in determining if the user is in the Hub')
+                player_in_hub = False
+                for hub in json_body['items']:
+                    if hub['hub_id'] == 'd9dba8bd-6bf9-435f-bdbc-808ae42d21bd':
+                        player_in_hub = True
+                        break
+                if not player_in_hub:
+                    raise commands.UserInputError(f'You just join the hub before linking your account.')
+
 
         db = Database('sqlite:///main.sqlite')
         await db.connect()
