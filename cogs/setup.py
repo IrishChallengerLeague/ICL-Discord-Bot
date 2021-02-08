@@ -47,7 +47,7 @@ class Setup(commands.Cog):
                         player_in_hub = True
                         break
                 if not player_in_hub:
-                    raise commands.UserInputError(f'You just join the hub before linking your account.')
+                    raise commands.UserInputError(f'You must join the hub before linking your account.')
 
 
         db = Database('sqlite:///main.sqlite')
