@@ -43,7 +43,7 @@ class Setup(commands.Cog):
                     raise commands.UserInputError('Error in determining if the user is in the Hub')
                 player_in_hub = False
                 for hub in json_body['items']:
-                    if hub['hub_id'] == 'd9dba8bd-6bf9-435f-bdbc-808ae42d21bd' or hub['hub_id'] == 'd9dba8bd-6bf9-435f-bdbc-808ae42d21bd':
+                    if hub['hub_id'] == 'd9dba8bd-6bf9-435f-bdbc-808ae42d21bd' or hub['hub_id'] == '6a1da082-546e-4f7d-bbe6-54a0e42b9981':
                         player_in_hub = True
                         break
                 if not player_in_hub:
