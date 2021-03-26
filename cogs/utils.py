@@ -30,6 +30,29 @@ class Utils(commands.Cog):
             self.logger.error(f'Could not send {member} a PM')
 
     @commands.command(hidden=True)
+    async def compareToICE(self, ctx: commands.Context, extension: str):
+        self.logger.debug(f'{ctx.author}: {ctx.prefix}{ctx.invoked_with} {ctx.args[2:]}')
+        numPeopleNotInICE = 0
+
+        ICL_discord: discord.Guild = ctx.guild
+
+        ICE_discord: discord.Guild = self.bot.get_guild(480120458717691914)
+
+
+
+        for member in ICL_discord.members:
+            if ICE_discord.get_member(member.id) is None:
+                numPeopleNotInICE += 1
+
+        await ctx.send(f'Number of people not in ICE but in ICL: {numPeopleNotInICE}')
+
+    @compareToICE.error
+    async def load_error(self, ctx: commands.Context, error: Exception):
+        await ctx.send(str(error))
+        self.logger.exception('CompareToICE command exception')
+
+
+    @commands.command(hidden=True)
     @commands.has_permissions(administrator=True)
     async def load(self, ctx: commands.Context, extension: str):
         self.logger.debug(f'{ctx.author}: {ctx.prefix}{ctx.invoked_with} {ctx.args[2:]}')
