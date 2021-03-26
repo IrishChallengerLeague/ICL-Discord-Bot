@@ -30,7 +30,7 @@ class Utils(commands.Cog):
             self.logger.error(f'Could not send {member} a PM')
 
     @commands.command(hidden=True)
-    async def compareToICE(self, ctx: commands.Context, extension: str):
+    async def compareToICE(self, ctx: commands.Context):
         self.logger.debug(f'{ctx.author}: {ctx.prefix}{ctx.invoked_with} {ctx.args[2:]}')
         numPeopleNotInICE = 0
 
