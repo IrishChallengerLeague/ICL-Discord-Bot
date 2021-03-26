@@ -34,13 +34,11 @@ class Utils(commands.Cog):
         self.logger.debug(f'{ctx.author}: {ctx.prefix}{ctx.invoked_with} {ctx.args[2:]}')
         numPeopleNotInICE = 0
 
-        ICL_discord: discord.Guild = ctx.guild
-
         ICE_discord: discord.Guild = self.bot.get_guild(480120458717691914)
 
+        await ctx.send(f'Got {ICE_discord.name}')
 
-
-        for member in ICL_discord.members:
+        for member in ctx.guild.members:
             if ICE_discord.get_member(member.id) is None:
                 numPeopleNotInICE += 1
 
