@@ -47,7 +47,11 @@ class Setup(commands.Cog):
                         player_in_hub = True
                         break
                 if not player_in_hub:
-                    raise commands.UserInputError(f'You must join the hub before linking your account.')
+                    raise commands.UserInputError(f'You must join the hub before linking your account.\n\n'
+                                                  f'**CSGO**\n'
+                                                  f'https://www.faceit.com/en/hub/d9dba8bd-6bf9-435f-bdbc-808ae42d21bd/Irish%20Challenger%20League\n'
+                                                  f'**Valorant**\n'
+                                                  f'https://www.faceit.com/en/hub/6a1da082-546e-4f7d-bbe6-54a0e42b9981/ICL%20Valorant')
 
 
         db = Database('sqlite:///main.sqlite')
