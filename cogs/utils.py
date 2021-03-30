@@ -35,13 +35,13 @@ class Utils(commands.Cog):
         numPeopleNotInICE = 0
 
         for member in ctx.guild.members:
-            await ctx.send(member.__dict__)
+            await ctx.send(ctx.guild)
             for guild in member.mutual_guilds:
-                foundICE = False
+                foundICE = 0
                 if guild.id is 480120458717691914:
-                    foundICE = True
+                    foundICE += 1
                     break
-                if not foundICE:
+                if foundICE is 0:
                     numPeopleNotInICE += 1
 
         await ctx.send(f'Number of people not in ICE but in ICL: {numPeopleNotInICE}')
