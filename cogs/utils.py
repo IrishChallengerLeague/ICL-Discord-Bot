@@ -33,7 +33,7 @@ class Utils(commands.Cog):
     async def compareToICE(self, ctx: commands.Context):
         self.logger.debug(f'{ctx.author}: {ctx.prefix}{ctx.invoked_with} {ctx.args[2:]}')
         numPeopleNotInICE = 0
-        
+
         for member in ctx.guild.members:
             await ctx.send(member)
             for guild in member.mutual_guilds:
