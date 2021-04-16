@@ -62,11 +62,11 @@ class WebServer:
                         team1_channel: discord.VoiceChannel = await self.bot.get_channel(
                             787774505854042132).create_voice_channel(
                             name=faceit["payload"]["teams"][0]["name"],
-                            user_limit=len(faceit["payload"]["teams"][0]["roster"])+1)
+                            user_limit=len(faceit["payload"]["teams"][0]["roster"]))
                         team2_channel: discord.VoiceChannel = await self.bot.get_channel(
                             787774505854042132).create_voice_channel(
                             name=faceit["payload"]["teams"][1]["name"],
-                            user_limit=len(faceit["payload"]["teams"][1]["roster"])+1)
+                            user_limit=len(faceit["payload"]["teams"][1]["roster"]))
 
                         team1_roster = []
                         for team1_player in faceit["payload"]["teams"][0]["roster"]:
