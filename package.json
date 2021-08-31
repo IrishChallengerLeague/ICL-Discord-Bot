@@ -1,0 +1,43 @@
+{
+  "name": "icl-discord-bot",
+  "version": "2.0.0",
+  "description": "Discord Bot to manage ICL",
+  "main": "index.js",
+  "dependencies": {
+    "@prisma/client": "^2.30.2",
+    "axios": "^0.21.1",
+    "cookie-parser": "^1.4.5",
+    "cookie-session": "^1.4.0",
+    "discord-passport": "^1.1.0",
+    "discord.js": "^13.1.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "passport": "^0.4.1",
+    "passport-discord": "^0.1.4",
+    "passport-faceit": "^1.1.0",
+    "passport-oauth2": "^1.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12",
+    "prisma": "^2.30.2"
+  },
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IrishChallengerLeague/ICL-Discord-Bot.git"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "faceit"
+  ],
+  "author": "Yannick Gloster",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/IrishChallengerLeague/ICL-Discord-Bot/issues"
+  },
+  "homepage": "https://github.com/IrishChallengerLeague/ICL-Discord-Bot#readme"
+}

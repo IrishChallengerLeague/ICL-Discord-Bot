@@ -1,0 +1,15 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+    discord_id String
+    faceit_id String
+
+    @@id([discord_id, faceit_id])
+}
