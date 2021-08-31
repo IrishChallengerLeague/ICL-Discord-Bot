@@ -4,10 +4,13 @@
   "description": "Discord Bot to manage ICL",
   "main": "index.js",
   "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "0.1.0-canary.0",
     "@prisma/client": "^2.30.2",
     "axios": "^0.21.1",
     "cookie-parser": "^1.4.5",
     "cookie-session": "^1.4.0",
+    "discord-api-types": "^0.22.0",
     "discord-passport": "^1.1.0",
     "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",

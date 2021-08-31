@@ -8,25 +8,16 @@ const DiscordPassport = require("discord-passport");
 const jwt = require("jsonwebtoken");
 const axios = require("axios").default;
 const { PrismaClient } = require("@prisma/client");
+const Bot = require("./bot");
 
 const prisma = new PrismaClient();
 
 let app = express();
 
+let discord = new Bot();
+discord.init();
+
 require("dotenv").config();
-
-const { Client, Intents } = require("discord.js");
-const discord = new Client({ intents: [Intents.FLAGS.GUILDS] });
-let memberRole = null;
-let guild = null;
-
-discord.on("ready", async () => {
-  console.log(`Logged in as ${discord.user.tag}!`);
-  // Get the server from the bot
-  guild = await discord.guilds.fetch("743042118041469008");
-  // Get the role from the server
-  memberRole = await guild.roles.fetch("882230544971206656");
-});
 
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -115,8 +106,8 @@ app.get(
 
       // Add member role to user and rename
       try {
-        guild.members.fetch(req.session.discord_id).then((member) => {
-          member.roles.add(memberRole);
+        discord.guild.members.fetch(req.session.discord_id).then((member) => {
+          member.roles.add(discord.memberRole);
           member.setNickname(
             req.user.faceitNickname,
             "Linked Discord and FACEIT account"
@@ -178,5 +169,3 @@ app.get("/link", async (req, res) => {
 });
 
 app.listen(53134);
-
-discord.login(process.env.DISCORD_TOKEN);
