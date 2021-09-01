@@ -9,10 +9,13 @@ const jwt = require("jsonwebtoken");
 const axios = require("axios").default;
 const { PrismaClient } = require("@prisma/client");
 const Bot = require("./bot");
+const { Permissions } = require("discord.js");
 
 const prisma = new PrismaClient();
 
 let app = express();
+
+let liveMatches = [];
 
 let discord = new Bot();
 discord.init();
@@ -21,6 +24,7 @@ require("dotenv").config();
 
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cookieParser());
 app.use(
   cookieSession({
@@ -136,7 +140,7 @@ app.get("/auth/discord", async (req, res) => {
     code: code,
     client_id: "784871645483237386",
     client_secret: "yELxS2Rl7HDV9C8fOw8Ew7a5zMj0rG7j",
-    redirect_uri: "http://localhost:53134/auth/discord",
+    redirect_uri: "http://92.131.241.34:3000/auth/discord",
     scope: ["identify", "guilds"],
   });
 
@@ -164,8 +168,50 @@ app.get("/auth/discord", async (req, res) => {
 
 app.get("/link", async (req, res) => {
   res.redirect(
-    "https://discord.com/api/oauth2/authorize?client_id=784871645483237386&redirect_uri=http%3A%2F%2Flocalhost%3A53134%2Fauth%2Fdiscord&response_type=code&scope=identify%20guilds"
+    "https://discord.com/api/oauth2/authorize?client_id=784871645483237386&redirect_uri=http%3A%2F%2F92.131.241.34%3A3000%2Fauth%2Fdiscord&response_type=code&scope=identify%20guilds"
   );
 });
 
-app.listen(53134);
+app.post("/faceit", async (req, res) => {
+  // Check header for valid key
+  console.log(req.body);
+  // Rewrite this code: https://github.com/IrishChallengerLeague/ICL-Discord-Bot/blob/e7b07dd77d4fcd6242e17bba143e5d6868c060ca/utils/server.py#L48
+  switch (req.body.event) {
+    case "match_status_ready":
+      console.log("ready");
+      console.log(req.body);
+      // loop through each team and find the discord ids/
+      // let team1Channel = await discord.guild.channels.create(
+      //   req.body.payload.teams[0].name,
+      //   {
+      //     type: "GUILD_VOICE",
+      //     parent: "787811785973432352", // Channel Category
+      //     permissionOverwrites: [
+      //       {
+      //         deny: [Permissions.FLAGS.CONNECT],
+      //       },
+      //       {
+      //         id: "125033487051915264",
+      //         allow: [
+      //           Permissions.FLAGS.VIEW_CHANNEL,
+      //           Permissions.FLAGS.CONNECT,
+      //         ],
+      //       },
+      //     ],
+      //     reason: "Match Start",
+      //   }
+      // );
+      break;
+    case "match_status_finished":
+    case "match_status_aborted":
+    case "match_status_cancelled":
+      console.log("Game over");
+      console.log(req.body);
+      break;
+    default:
+      break;
+  }
+  res.sendStatus(200);
+});
+
+app.listen(3000);
