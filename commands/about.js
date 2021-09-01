@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const { MessageEmbed } = require("discord.js");
+const { Interaction, MessageEmbed } = require("discord.js");
 const package = require("../package.json");
 
 const aboutEmbed = new MessageEmbed()
@@ -14,6 +14,9 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("about")
     .setDescription("Replies with bot information and version"),
+  /**
+   * @param {Interaction} interaction
+   */
   async execute(interaction) {
     return interaction.reply({ embeds: [aboutEmbed] });
   },
